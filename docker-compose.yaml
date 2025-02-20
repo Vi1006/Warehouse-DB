@@ -1,0 +1,64 @@
+services:
+  mariadb:
+    image: mariadb:11.2
+    restart: unless-stopped
+    container_name: mariadb
+    environment:
+      MYSQL_DATABASE: ${MARIADB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: "exit 0"
+    ports:
+      - "${MARIADB_HOST_PORT}:${MARIADB_CONTAINER_PORT}"
+    networks:
+      - nginx-laravel
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "${LARAVEL_HOST_PORT}:${LARAVEL_CONTAINER_PORT}"
+    volumes:
+      - ./warehouse:/var/www/warehouse
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - laravel
+      - mariadb
+    networks:
+      - nginx-laravel
+
+  laravel:
+    container_name: laravel
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./warehouse:/var/www/warehouse
+    depends_on:
+      - mariadb
+    ports:
+      - "${LARAVEL_PHP_HOST_PORT}:${LARAVEL_PHP_CONTAINER_PORT}"
+    working_dir: /var/www/warehouse
+    networks:
+      - nginx-laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: ${PMA_USER}
+      PMA_PASSWORD: ${PMA_PASSWORD}
+    ports:
+      - "${PMA_HOST_PORT}:${PMA_CONTAINER_PORT}"
+    restart: always
+    networks:
+      - nginx-laravel
+
+volumes:
+  db:
+networks:
+  nginx-laravel:
+    driver: bridge
+
