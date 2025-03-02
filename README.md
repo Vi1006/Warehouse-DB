@@ -24,7 +24,7 @@
 	6.1 Добавяме нова база с данни: Database -> бутон + -> Data source -> MariaDB (laravel)
 	6.2 User: root / Password: password / Database: laravel
 	
-В терминала може да извикаме всичките създадени route за заявките с командата: php artisan route:list . Създадените завки са:
+В терминала може да извикаме всичките създадени route заявки с командата: php artisan route:list . Създадените завки са:
 - Заявка get за всяка таблица.
 - Заявка get(id) за всяка таблица - извиква съответното id от таблицата.
 - Заявка post за таблици Addresses, Cities, Clients, Inventories и Orders. С заявката post добавяме нови редове в таблиците.
